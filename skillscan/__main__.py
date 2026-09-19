@@ -1,3 +1,4 @@
+"""Entry point for the skillscan package."""
 import sys
 
 from .cli import main
