@@ -42,13 +42,12 @@ def print_rules():
 
 
 def render(report, min_severity):
-    out = []
-    out.append(f"agent-skill-audit {__version__}")
-    out.append(f"scanning {report.root}")
-    out.append(
-        f"scanned {report.files_scanned} files, skipped {report.files_skipped}, "
-        f"ignored {report.files_ignored}, {len(report.findings)} findings"
-    )
+    out = [
+        f"agent-skill-audit {__version__}",
+        f"scanning {report.root}",
+        f"scanned {report.files_scanned} files, skipped {report.files_skipped}, ignored {report.files_ignored}, {len(report.findings)} findings",
+    ]
+
     if report.findings:
         out.append("")
         for finding in report.findings:
@@ -63,9 +62,11 @@ def render(report, min_severity):
             out.append("")
     else:
         out.append("no findings at or above the requested severity")
+
     counts = report.counts()
     tally = ", ".join(f"{counts[severity]} {severity}" for severity in reversed(SEVERITY_ORDER))
     out.append(f"summary: {tally}")
+
     if report.warnings:
         out.append("")
         out.append(f"{len(report.warnings)} warnings")
@@ -73,6 +74,7 @@ def render(report, min_severity):
             out.append(f"  {warning}")
         if len(report.warnings) > 20:
             out.append(f"  and {len(report.warnings) - 20} more")
+
     return "\n".join(out)
 
 
@@ -98,10 +100,7 @@ def main(argv=None):
 
     try:
         report = scan_tree(args.path, min_severity=args.min_severity)
-    except ValueError as exc:
-        print(f"skillscan: error: {exc}", file=sys.stderr)
-        return 2
-    except OSError as exc:
+    except (ValueError, OSError) as exc:
         print(f"skillscan: error: {exc}", file=sys.stderr)
         return 2
 
