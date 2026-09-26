@@ -234,6 +234,21 @@ def _rules():
             [SCOPE_FRONTMATTER],
             "Add name and description frontmatter so the skill can be reviewed without reading the whole file.",
         ),
+        Rule(
+            "SS016",
+            "encoded payload decoded and executed",
+            HIGH,
+            [
+                r"\becho\s+[\"']?[A-Za-z0-9+/=]{24,}[\"']?\s*\|\s*base64\s+(?:-d|--decode)\b[^\n]{0,80}\|\s*(?:ba|z|da)?sh\b",
+                r"\bbase64\s+(?:-d|--decode)\b[^\n]{0,120}\|\s*(?:ba|z|da)?sh\b",
+                r"\becho\s+[\"']?[0-9a-fA-F]{32,}[\"']?\s*\|\s*xxd\s+-r\s+-p\s*\|\s*(?:ba|z|da)?sh\b",
+                r"\bpython3?\s+-c\s+[\"'](?=[^\n]*base64\.b64decode\()(?=[^\n]*(?:exec|eval|os\.system|subprocess))",
+                r"\bexec\s*\(\s*(?:__import__\([\"']base64[\"']\)|base64)\.b64decode\(",
+                r"powershell[^\n]{0,40}-e(?:nc(?:odedcommand)?)?\s+[A-Za-z0-9+/=]{40,}",
+            ],
+            [SCOPE_CODE, SCOPE_SCRIPT, SCOPE_CONFIG],
+            "Show the decoded command in the file itself. A step that only makes sense once decoded is a step written to dodge review.",
+        ),
     ]
 
 

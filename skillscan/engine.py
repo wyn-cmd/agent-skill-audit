@@ -239,6 +239,7 @@ LIST_MARKER = re.compile(r"^(?:[-*+]\s+|\d+[.)]\s+|>\s+|\$\s+|#+\s+|!?\s*>)")
 
 COMMAND_VERBS = {
     "awk",
+    "base64",
     "bash",
     "cat",
     "chmod",

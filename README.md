@@ -56,6 +56,7 @@ A tree that only trips a low severity rule exits 0 by default, so the low rules 
 | SS012 | medium | a broad capability set declared in frontmatter: shell plus write plus network in one skill |
 | SS013 | medium | a skipped safety step: skip confirmation, no approval needed, auto-approve, dangerously-skip-permissions |
 | SS014 | low | a skill file with no frontmatter metadata |
+| SS016 | high | an encoded payload decoded and piped into a shell, or decoded and executed in place: base64/hex piped to sh, a python -c that decodes and execs, a powershell -enc blob |
 
 Two scope decisions keep the findings readable. Documentation that names a command is not a finding, so a prose line reading "the sudo step is explained here" is left alone, while a line that opens with the command and its arguments is scanned as a command whether or not it was wrapped in backticks. An environment variable reference on its own is not a finding either, because `curl -H "Authorization: token $GITHUB_TOKEN"` is ordinary API use; reading a key file, echoing a key, or sending it to a host is what gets reported.
 
