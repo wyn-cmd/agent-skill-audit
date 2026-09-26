@@ -1,4 +1,4 @@
-"""Command line front end for the audit engine."""
+# Command line front end for the audit engine.
 
 import argparse
 import json

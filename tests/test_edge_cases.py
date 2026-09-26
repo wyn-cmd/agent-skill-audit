@@ -1,4 +1,4 @@
-"""Adversarial cases the happy path never touches."""
+# Adversarial cases the happy path never touches.
 
 import json
 import os
@@ -169,7 +169,7 @@ def test_path_arguments():
 
 
 def test_stdin_is_not_read():
-    """The tool must not block when it is handed a pipe instead of a path."""
+    # The tool must not block when it is handed a pipe instead of a path.
     root = tempfile.mkdtemp(prefix="skillscan-stdin-")
     try:
         write(root, "SKILL.md", "---\nname: x\n---\n\nNothing risky.\n")

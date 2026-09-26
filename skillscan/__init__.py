@@ -1,4 +1,4 @@
-"""Audit agent skill folders and MCP configuration for risky capability grants."""
+# Audit agent skill folders and MCP configuration for risky capability grants.
 
 __all__ = ["__version__"]
 
