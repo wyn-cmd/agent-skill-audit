@@ -1,10 +1,9 @@
-"""Rule definitions used by the audit engine.
-
-Every rule has a stable id, a severity and one or more compiled patterns. The
-engine decides which text a rule sees (prose, a code span, a shell script or a
-config value) through the scope field, so a rule that would fire on ordinary
-documentation never gets handed a documentation line.
-"""
+# Rule definitions used by the audit engine.
+#
+# Every rule has a stable id, a severity and one or more compiled patterns. The
+# engine decides which text a rule sees (prose, a code span, a shell script or a
+# config value) through the scope field, so a rule that would fire on ordinary
+# documentation never gets handed a documentation line.
 
 import re
 
@@ -23,7 +22,7 @@ SCOPE_FRONTMATTER = "frontmatter"
 
 
 class Rule:
-    """One audit check."""
+    # One audit check.
 
     def __init__(self, rule_id, title, severity, patterns, scopes, advice):
         self.rule_id = rule_id

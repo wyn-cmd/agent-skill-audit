@@ -1,4 +1,4 @@
-"""Behaviour tests for the audit engine, driven through a fixture tree."""
+# Behaviour tests for the audit engine, driven through a fixture tree.
 
 import json
 import os

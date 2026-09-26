@@ -1,4 +1,4 @@
-"""Entry point for the skillscan package."""
+# Entry point for the skillscan package.
 
 import sys
 

@@ -1,9 +1,8 @@
-"""Walk an agent configuration tree and report risky capability grants.
-
-The engine never executes anything. It reads the files a coding agent would
-read (skill files, MCP server configuration, hooks, shell and script files that
-ship with a skill) and matches them against the rules in rules.py.
-"""
+# Walk an agent configuration tree and report risky capability grants.
+#
+# The engine never executes anything. It reads the files a coding agent would
+# read (skill files, MCP server configuration, hooks, shell and script files that
+# ship with a skill) and matches them against the rules in rules.py.
 
 import json
 import os
@@ -97,13 +96,13 @@ IGNORE_HEAD_LINES = 10
 
 
 def parse_directives(text):
-    """Read the suppression directives out of one file.
-
-    Returns (ignore_whole_file, set_of_rule_ids). A bare "skillscan: ignore" on a
-    line silences that line only. "skillscan: ignore SS006,SS007" silences those
-    rules for the whole file. "skillscan: ignore-file" in the first ten lines
-    silences the file, which is what a fixture or an example tree wants.
-    """
+    # Read the suppression directives out of one file.
+    #
+    # Returns (ignore_whole_file, set_of_rule_ids). A bare "skillscan: ignore" on a
+    # line silences that line only. "skillscan: ignore SS006,SS007" silences those
+    # rules for the whole file. "skillscan: ignore-file" in the first ten lines
+    # silences the file, which is what a fixture or an example tree wants.
+    #
     lines = text.splitlines()
     ignore_file = any(IGNORE_FILE_RE.search(line) for line in lines[:IGNORE_HEAD_LINES])
     rule_ids = set()
@@ -116,13 +115,13 @@ def parse_directives(text):
 
 
 def line_is_ignored(line):
-    """True when the line carries a bare suppression directive."""
+    # True when the line carries a bare suppression directive.
     match = IGNORE_LINE_RE.search(line)
     return bool(match) and not match.group(1)
 
 
 class Finding:
-    """One rule hit against one file, with a few sample lines."""
+    # One rule hit against one file, with a few sample lines.
 
     def __init__(self, rule, path):
         self.rule_id = rule.rule_id
@@ -143,7 +142,7 @@ class Finding:
 
 
 class Report:
-    """Everything one scan produced."""
+    # Everything one scan produced.
 
     def __init__(self, root):
         self.root = root
@@ -209,7 +208,7 @@ def looks_like_config(rel_path, text):
 
 
 def parse_frontmatter(lines):
-    """Return (frontmatter_lines, body_start_index). Empty list when absent."""
+    # Return (frontmatter_lines, body_start_index). Empty list when absent.
     if not lines:
         return [], 0
     if lines[0].strip() != "---":
@@ -221,7 +220,7 @@ def parse_frontmatter(lines):
 
 
 def code_spans(line):
-    """Text inside backticks on one line, including fenced-block single ticks."""
+    # Text inside backticks on one line, including fenced-block single ticks.
     spans = []
     parts = line.split("`")
     for index in range(1, len(parts), 2):
@@ -301,11 +300,11 @@ VERB_SKIP = {"doas", "sudo"}
 
 
 def looks_like_command(line):
-    """True when a prose line is itself a command rather than a sentence about one.
-
-    Documentation that names a command ("the sudo step is explained here") is not a
-    finding; a line that opens with the command and its arguments is.
-    """
+    # True when a prose line is itself a command rather than a sentence about one.
+    #
+    # Documentation that names a command ("the sudo step is explained here") is not a
+    # finding; a line that opens with the command and its arguments is.
+    #
     text = line.strip()
     previous = None
     while previous != text:
@@ -327,7 +326,7 @@ def looks_like_command(line):
 
 
 def scope_for(rel_path, line, in_fence):
-    """Decide which scope a line belongs to, for one file type."""
+    # Decide which scope a line belongs to, for one file type.
     lower = rel_path.lower()
     if lower.endswith(SCRIPT_SUFFIXES):
         return [(SCOPE_SCRIPT, line)]
@@ -400,7 +399,7 @@ def apply_rules(rel_path, scope, text, lineno, findings, skip_rules=None, only_r
 
 
 def locate(text, token):
-    """Line number of the first line holding token, or 0 when it is not found."""
+    # Line number of the first line holding token, or 0 when it is not found.
     if not token:
         return 0
     for index, line in enumerate(text.splitlines(), start=1):
@@ -410,7 +409,7 @@ def locate(text, token):
 
 
 def scan_json_config(rel_path, text, findings, file_skips=None):
-    """Look inside MCP server definitions rather than only at the raw text."""
+    # Look inside MCP server definitions rather than only at the raw text.
     file_skips = file_skips or set()
     try:
         data = json.loads(text)
@@ -509,7 +508,7 @@ def iter_files(root, report):
 
 
 def scan_tree(root, min_severity=LOW):
-    """Scan root and return a Report. Raises ValueError when root is not a directory."""
+    # Scan root and return a Report. Raises ValueError when root is not a directory.
     if not os.path.isdir(root):
         raise ValueError(f"not a directory: {root}")
     report = Report(os.path.abspath(root))
