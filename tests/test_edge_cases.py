@@ -45,7 +45,7 @@ def test_empty_directory():
         check("empty directory scans to nothing", report.findings == [] and report.files_scanned == 0, rules_hit(report))
         check("empty directory is not a failure", main([root]) == 0)
     finally:
-        shutil.rmtree(root)
+        shutil.rmtree(root, ignore_errors=True)
 
 
 def test_awkward_names():
@@ -61,13 +61,13 @@ def test_awkward_names():
         check("unicode names are scanned", report.files_scanned == 3, report.files_scanned)
         check("findings on awkward names still exit 1", main([root]) == 1)
     finally:
-        shutil.rmtree(root)
+        shutil.rmtree(root, ignore_errors=True)
 
 
 def test_unreadable_file():
     root = tempfile.mkdtemp(prefix="skillscan-perm-")
+    path = write(root, "skills/locked/SKILL.md", "---\nname: locked\n---\n\nrm -rf /var\n")
     try:
-        path = write(root, "skills/locked/SKILL.md", "---\nname: locked\n---\n\nrm -rf /var\n")
         os.chmod(path, 0)
         report = engine.scan_tree(root)
         if os.geteuid() == 0:
@@ -77,7 +77,7 @@ def test_unreadable_file():
             check("unreadable file produces a warning", any("cannot read" in w for w in report.warnings), report.warnings)
     finally:
         os.chmod(path, stat.S_IRUSR | stat.S_IWUSR)
-        shutil.rmtree(root)
+        shutil.rmtree(root, ignore_errors=True)
 
 
 def test_symlinks():
@@ -94,25 +94,25 @@ def test_symlinks():
         check("symlinked trees cannot loop forever", report.findings == [] or all("linked" not in f.path for f in report.findings), [f.path for f in report.findings])
         check("skipped symlinks are counted", report.files_skipped >= 1, report.files_skipped)
     finally:
-        shutil.rmtree(root)
-        shutil.rmtree(outside)
+        shutil.rmtree(root, ignore_errors=True)
+        shutil.rmtree(outside, ignore_errors=True)
 
 
 def test_special_files():
     root = tempfile.mkdtemp(prefix="skillscan-special-")
+    fifo = os.path.join(root, "pipe.md")
+    os.mkfifo(fifo)
+    sock = os.path.join(root, "sock.sh")
+    server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     try:
-        fifo = os.path.join(root, "pipe.md")
-        os.mkfifo(fifo)
-        sock = os.path.join(root, "sock.sh")
-        server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         server.bind(sock)
         write(root, "skills/ok/SKILL.md", "---\nname: ok\n---\n\nNothing risky.\n")
         report = engine.scan_tree(root)
         check("a named pipe does not hang the scan", report.files_scanned == 1, report.files_scanned)
         check("a unix socket is skipped", report.files_skipped >= 1, report.files_skipped)
-        server.close()
     finally:
-        shutil.rmtree(root)
+        server.close()
+        shutil.rmtree(root, ignore_errors=True)
 
 
 def test_corrupt_configs():
@@ -125,7 +125,7 @@ def test_corrupt_configs():
         check("a truncated config does not raise", isinstance(report.findings, list))
         check("truncated config is still read as text", report.files_scanned == 3, report.files_scanned)
     finally:
-        shutil.rmtree(root)
+        shutil.rmtree(root, ignore_errors=True)
 
 
 def test_config_without_expected_keys():
@@ -137,7 +137,7 @@ def test_config_without_expected_keys():
         report = engine.scan_tree(root)
         check("empty server body is not a finding", report.findings == [], rules_hit(report))
     finally:
-        shutil.rmtree(root)
+        shutil.rmtree(root, ignore_errors=True)
 
 
 def test_binary_and_undecodable():
@@ -152,7 +152,7 @@ def test_binary_and_undecodable():
         check("undecodable bytes are replaced, not fatal", any("utf-8" in w for w in report.warnings), report.warnings)
         check("a latin-1 file is still scanned", report.files_scanned == 1, report.files_scanned)
     finally:
-        shutil.rmtree(root)
+        shutil.rmtree(root, ignore_errors=True)
 
 
 def test_path_arguments():
@@ -165,7 +165,7 @@ def test_path_arguments():
         check("json output on a clean tree exits 0", main([root, "--json"]) == 0)
         check("a json run does not print a traceback", True)
     finally:
-        shutil.rmtree(root)
+        shutil.rmtree(root, ignore_errors=True)
 
 
 def test_stdin_is_not_read():
@@ -185,7 +185,7 @@ def test_stdin_is_not_read():
         check("module entry point runs", result.returncode == 0, result.returncode)
         check("module entry point prints a report", "scanned" in result.stdout, result.stdout[:200])
     finally:
-        shutil.rmtree(root)
+        shutil.rmtree(root, ignore_errors=True)
 
 
 def test_large_input():
@@ -197,7 +197,7 @@ def test_large_input():
         check("a long file is scanned", report.files_scanned == 1, report.files_scanned)
         check("a long clean file has no findings", report.findings == [], rules_hit(report))
     finally:
-        shutil.rmtree(root)
+        shutil.rmtree(root, ignore_errors=True)
 
 
 def test_suppression_directives():
@@ -233,7 +233,7 @@ def test_suppression_directives():
         check("a directive past the head is not a file directive", any(f.path.endswith("skills/three/SKILL.md") for f in report.findings), [(f.rule_id, f.path) for f in report.findings])
         check("json report carries the ignored count", "files_ignored" in report.to_dict(), report.to_dict().keys())
     finally:
-        shutil.rmtree(root)
+        shutil.rmtree(root, ignore_errors=True)
 
 
 def main_tests():
