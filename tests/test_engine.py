@@ -134,7 +134,7 @@ def test_command_line_without_backticks():
         check("an unwrapped command line is scanned as a command", finding_for(report, "SS006") is not None, rules_hit(report))
         check("the finding points at the command line", finding_for(report, "SS006").samples[0][0] == 10, finding_for(report, "SS006").samples)
     finally:
-        shutil.rmtree(root)
+        shutil.rmtree(root, ignore_errors=True)
 
 
 def test_secret_in_request_is_not_a_credential_read():
@@ -150,7 +150,7 @@ def test_secret_in_request_is_not_a_credential_read():
         check("an authenticated request is its own finding", finding_for(report, "SS015") is not None, rules_hit(report))
         check("an authenticated request is not a credential read", finding_for(report, "SS006") is None, rules_hit(report))
     finally:
-        shutil.rmtree(root)
+        shutil.rmtree(root, ignore_errors=True)
 
 
 def test_clean_tree():
@@ -162,7 +162,7 @@ def test_clean_tree():
         check("clean tree counts scanned files", report.files_scanned >= 3, report.files_scanned)
         check("clean tree exit code is 0", main([root]) == 0)
     finally:
-        shutil.rmtree(root)
+        shutil.rmtree(root, ignore_errors=True)
 
 
 def test_risky_tree():
@@ -179,7 +179,7 @@ def test_risky_tree():
         check("injection finding carries a line number", injection is not None and injection.samples[0][0] > 0, injection)
         check("injection sample quotes the line", injection is not None and "ignore" in injection.samples[0][1].lower(), injection)
     finally:
-        shutil.rmtree(root)
+        shutil.rmtree(root, ignore_errors=True)
 
 
 def test_frontmatter_and_fences():
@@ -190,7 +190,7 @@ def test_frontmatter_and_fences():
         check("missing frontmatter is reported", finding_for(report, "SS014") is not None, rules_hit(report))
         check("missing frontmatter is low severity", report.worst_severity() == "low", report.worst_severity())
     finally:
-        shutil.rmtree(root)
+        shutil.rmtree(root, ignore_errors=True)
 
     root = tempfile.mkdtemp(prefix="skillscan-fence-")
     try:
@@ -198,7 +198,7 @@ def test_frontmatter_and_fences():
         report = engine.scan_tree(root)
         check("code span is scanned as code", finding_for(report, "SS001") is not None, rules_hit(report))
     finally:
-        shutil.rmtree(root)
+        shutil.rmtree(root, ignore_errors=True)
 
 
 def test_prose_is_not_code():
@@ -213,7 +213,7 @@ def test_prose_is_not_code():
         report = engine.scan_tree(root)
         check("commands in prose are not findings", report.findings == [], rules_hit(report))
     finally:
-        shutil.rmtree(root)
+        shutil.rmtree(root, ignore_errors=True)
 
 
 def test_severity_filter():
@@ -227,7 +227,7 @@ def test_severity_filter():
         check("filter drops the low rule", len(high_only.findings) < len(everything.findings), len(high_only.findings))
         check("only medium finding survives the medium floor", all(f.severity != "low" for f in engine.scan_tree(root, min_severity="medium").findings))
     finally:
-        shutil.rmtree(root)
+        shutil.rmtree(root, ignore_errors=True)
 
 
 def test_json_report_shape():
@@ -241,7 +241,7 @@ def test_json_report_shape():
         check("json findings carry rule and path", all({"rule", "path", "severity"} <= set(item) for item in payload["findings"]))
         check("json report is serialisable", isinstance(payload, dict))
     finally:
-        shutil.rmtree(root)
+        shutil.rmtree(root, ignore_errors=True)
 
 
 def test_cli_surface():
@@ -259,7 +259,7 @@ def test_cli_surface():
         else:
             check("bad severity exits 2", False, "no SystemExit")
     finally:
-        shutil.rmtree(root)
+        shutil.rmtree(root, ignore_errors=True)
 
 
 def test_large_file_is_skipped():
@@ -272,7 +272,7 @@ def test_large_file_is_skipped():
         check("oversized file is skipped", report.files_skipped == 1, report.files_skipped)
         check("oversized file produces a warning", any("over the" in w for w in report.warnings), report.warnings)
     finally:
-        shutil.rmtree(root)
+        shutil.rmtree(root, ignore_errors=True)
 
 
 def test_no_media_guard():
@@ -304,7 +304,7 @@ def test_encoded_payload_rule():
         check("encoded pipe to a shell is flagged", finding is not None, rules_hit(report))
         check("finding is high severity", finding is not None and finding.severity == "high", finding)
     finally:
-        shutil.rmtree(root)
+        shutil.rmtree(root, ignore_errors=True)
 
     root = tempfile.mkdtemp(prefix="skillscan-ss016-clean-")
     try:
@@ -319,7 +319,7 @@ def test_encoded_payload_rule():
         report = engine.scan_tree(root)
         check("decoding without piping to a shell is not a finding", finding_for(report, "SS016") is None, rules_hit(report))
     finally:
-        shutil.rmtree(root)
+        shutil.rmtree(root, ignore_errors=True)
 
 
 def main_tests():
